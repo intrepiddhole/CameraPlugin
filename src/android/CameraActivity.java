@@ -11,6 +11,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -26,46 +27,16 @@ import android.widget.LinearLayout;
 public class CameraActivity extends Activity {
 
 	private static final String TAG = "CameraActivity";
-
-	private Camera mCamera;
+	
 	private CameraPreview mPreview;
-	private boolean pressed = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(getResources().getIdentifier("cameraplugin", "layout", getPackageName()));
 
-		// Create an instance of Camera
-		mCamera = getCameraInstance();
-
-		if (mCamera == null) {
-			setResult(RESULT_CANCELED);
-			finish();
-			return;
-		}
-		
-		Camera.Parameters params = mCamera.getParameters();
-	    List<Camera.Size> sizes = params.getSupportedPictureSizes();
-	    
-	    int w = 0, h = 0;
-	    for(Camera.Size s : sizes){
-	    	// If larger, take it
-	    	if (s.width * s.height > w * h) {
-	    		w = s.width;
-	    		h = s.height;
-	    	}
-	    }
-
-	    params.setPictureSize(w, h);
-	    params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-
-	    mCamera.setParameters(params);
-
 		// Create a Preview and set it as the content of activity.
-		mPreview = new CameraPreview(this);
-		mPreview.setCamera(mCamera);
-		
+	    mPreview = new CameraPreview(this, 0, CameraPreview.LayoutMode.FitToParent);
 		
 		LinearLayout preview = (LinearLayout)findViewById(getResources().getIdentifier("camera_preview", "id", getPackageName()));
 		preview.addView(mPreview, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -74,31 +45,13 @@ public class CameraActivity extends Activity {
 		ImageView captureButton = (ImageView) findViewById(getResources().getIdentifier("button_capture", "id", getPackageName()));
 		captureButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				if(mCamera == null)
-					return;
-				mCamera.takePicture(null, null, mPicture);
-				/*if (pressed || mCamera == null)
-					return;
-
-				// Set pressed = true to prevent freezing.
-				// Issue 1 at
-				// http://code.google.com/p/foreground-camera-plugin/issues/detail?id=1
-				pressed = true;
-
-				// get an image from the camera
-				mCamera.autoFocus(new AutoFocusCallback() {
-
-					public void onAutoFocus(boolean success, Camera camera) {
-						mCamera.takePicture(null, null, mPicture);
-					}
-				});*/
+				mPreview.takePhoto(CameraActivity.this);
 			}
 		});
 
 		ImageView cancelButton = (ImageView) findViewById(getResources().getIdentifier("button_cancel", "id", getPackageName()));
 		cancelButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				pressed = false;
 				setResult(RESULT_CANCELED);
 				finish();
 			}
@@ -107,52 +60,25 @@ public class CameraActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		if (mCamera != null) {
-			try {
-			    mCamera.stopPreview();
-	        	mCamera.setPreviewCallback(null); 
-			} catch (Exception e) {
-				Log.d(TAG, "Exception stopping camera: " + e.getMessage());
-			}
-			mCamera.release(); // release the camera for other applications
-			mCamera = null;
-		}
 		super.onDestroy();
 	}
 
-	/** A safe way to get an instance of the Camera object. */
-	public static Camera getCameraInstance() {
-		Camera c = null;
+	
+	public void proceedWithBitmap(byte[] data, Camera camera){
+		Uri fileUri = (Uri) getIntent().getExtras().get(MediaStore.EXTRA_OUTPUT);
+
+		File pictureFile = new File(fileUri.getPath());
+
 		try {
-			c = Camera.open(); // attempt to get a Camera instance
-		} catch (Exception e) {
-			// Camera is not available (in use or does not exist)
-			Log.d(TAG, "Camera not available: " + e.getMessage());
+			FileOutputStream fos = new FileOutputStream(pictureFile);
+			fos.write(data);
+			fos.close();
+		} catch (FileNotFoundException e) {
+			Log.d(TAG, "File not found: " + e.getMessage());
+		} catch (IOException e) {
+			Log.d(TAG, "Error accessing file: " + e.getMessage());
 		}
-		return c; // returns null if camera is unavailable
+		setResult(RESULT_OK);
+		finish();
 	}
-
-	private PictureCallback mPicture = new PictureCallback() {
-
-		public void onPictureTaken(byte[] data, Camera camera) {
-
-			Uri fileUri = (Uri) getIntent().getExtras().get(
-					MediaStore.EXTRA_OUTPUT);
-
-			File pictureFile = new File(fileUri.getPath());
-
-			try {
-				FileOutputStream fos = new FileOutputStream(pictureFile);
-				fos.write(data);
-				fos.close();
-			} catch (FileNotFoundException e) {
-				Log.d(TAG, "File not found: " + e.getMessage());
-			} catch (IOException e) {
-				Log.d(TAG, "Error accessing file: " + e.getMessage());
-			}
-			setResult(RESULT_OK);
-			pressed = false;
-			finish();
-		}
-	};
 }
