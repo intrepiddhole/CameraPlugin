@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 /**
@@ -70,11 +71,13 @@ public class CameraActivity extends Activity {
 		preview.addView(mPreview, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
 		// Add a listener to the Capture button
-		Button captureButton = (Button) findViewById(getResources().getIdentifier("button_capture", "id", getPackageName()));
+		ImageView captureButton = (ImageView) findViewById(getResources().getIdentifier("button_capture", "id", getPackageName()));
 		captureButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-
-				if (pressed || mCamera == null)
+				if(mCamera == null)
+					return;
+				mCamera.takePicture(null, null, mPicture);
+				/*if (pressed || mCamera == null)
 					return;
 
 				// Set pressed = true to prevent freezing.
@@ -88,11 +91,11 @@ public class CameraActivity extends Activity {
 					public void onAutoFocus(boolean success, Camera camera) {
 						mCamera.takePicture(null, null, mPicture);
 					}
-				});
+				});*/
 			}
 		});
 
-		Button cancelButton = (Button) findViewById(getResources().getIdentifier("button_cancel", "id", getPackageName()));
+		ImageView cancelButton = (ImageView) findViewById(getResources().getIdentifier("button_cancel", "id", getPackageName()));
 		cancelButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				pressed = false;

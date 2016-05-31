@@ -68,6 +68,8 @@
         <source-file src="src/android/FileHelper.java" target-dir="src/org/apache/cordova/camera" />
         <source-file src="src/android/ExifHelper.java" target-dir="src/org/apache/cordova/camera" />
 		<source-file src="src/android/cameraplugin.xml" target-dir="res/layout" />
+		<source-file src="src/android/cross.png" target-dir="res/drawable" />
+		<source-file src="src/android/shutter.png" target-dir="res/drawable" />
 		
         <js-module src="www/CameraPopoverHandle.js" name="CameraPopoverHandle">
             <clobbers target="CameraPopoverHandle" />
