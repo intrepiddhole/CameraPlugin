@@ -409,9 +409,8 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 		        	 cropBitmap = Bitmap.createBitmap(bitmap, (bitmap.getWidth()-bitmap.getHeight())/2, 0, bitmap.getHeight(), bitmap.getHeight());
 		         else
 		        	 cropBitmap = Bitmap.createBitmap(bitmap, 0, (bitmap.getHeight()-bitmap.getWidth())/2, bitmap.getWidth(), bitmap.getWidth());
-		         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		         cropBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-    			 parent.proceedWithBitmap(stream.toByteArray(), arg1);
+		         
+    			 parent.proceedWithBitmap(cropBitmap, arg1);
     		 }
     	};
     		 

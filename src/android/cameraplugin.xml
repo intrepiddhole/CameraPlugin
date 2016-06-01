@@ -85,5 +85,44 @@
 	            android:layout_weight="0.1"/>
 	    </LinearLayout>
     </LinearLayout>
-    
+    <RelativeLayout
+        android:id="@+id/reviewPage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:visibility="gone">
+        <org.apache.cordova.camera.SquareLinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_centerInParent="true">
+	        <ImageView
+	            android:id="@+id/takenPicture"
+	            android:layout_width="match_parent"
+            	android:layout_height="match_parent"/>
+	    </org.apache.cordova.camera.SquareLinearLayout>
+        <Button 
+            android:id="@+id/btnRetake"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Retake"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="25dp"
+            android:layout_marginBottom="30dp"
+            android:background="#00000000"/>
+        <Button 
+            android:id="@+id/btnUsePhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Use Photo"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="25dp"
+            android:layout_marginBottom="30dp"
+            android:background="#00000000"/>
+    </RelativeLayout>
 </RelativeLayout>
