@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 
 import android.R;
@@ -37,6 +39,8 @@ public class CameraActivity extends Activity {
 	private Bitmap takenBitmap = null;
 	private ImageView takenPicture;
 	private RelativeLayout reviewPage;
+	private String mainFilePath;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -62,7 +66,7 @@ public class CameraActivity extends Activity {
 		ImageView cancelButton = (ImageView) findViewById(getResources().getIdentifier("button_cancel", "id", getPackageName()));
 		cancelButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				setResult(RESULT_CANCELED);
+				setResult(RESULT_OK);
 				finish();
 			}
 		});
@@ -99,6 +103,11 @@ public class CameraActivity extends Activity {
 				finish();
 			}
 		});
+		
+		Uri fileUri = (Uri) getIntent().getExtras().get(MediaStore.EXTRA_OUTPUT);
+		String filepath = fileUri.getPath();
+		String ext = filepath.substring(filepath.lastIndexOf("cache")); 
+		mainFilePath = filepath.substring(0, filepath.length()-ext.length());
 	}
 
 	@Override
@@ -110,7 +119,29 @@ public class CameraActivity extends Activity {
 	public void proceedWithBitmap(Bitmap bitmap, Camera camera){
 		takenBitmap = bitmap;
 		mPreview.mCamera.stopPreview();
-		takenPicture.setImageBitmap(bitmap);
-		reviewPage.setVisibility(View.VISIBLE);
+		//takenPicture.setImageBitmap(bitmap);
+		//reviewPage.setVisibility(View.VISIBLE);
+		
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		takenBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] data = stream.toByteArray();
+        
+		long currentDateTimeString = (new Date()).getTime();
+		
+		String filepath = mainFilePath+currentDateTimeString+".jpg";
+		
+		File pictureFile = new File(filepath);
+
+		try {
+			FileOutputStream fos = new FileOutputStream(pictureFile);
+			fos.write(data);
+			fos.close();
+		} catch (FileNotFoundException e) {
+			Log.d(TAG, "File not found: " + e.getMessage());
+		} catch (IOException e) {
+			Log.d(TAG, "Error accessing file: " + e.getMessage());
+		}
+		
+		mPreview.mCamera.startPreview();
 	}
 }
